@@ -22,33 +22,25 @@ type Client struct {
 	createFormBuilder func(io.Writer) utils.FormBuilder
 }
 
-type DefPayload struct {
-	ApiKey    string `json:"api_key"`
-	Exp       int64  `json:"exp"`
-	Timestamp int64  `json:"timestamp"`
-	jwt.StandardClaims
-}
+func getToken(apiKey string, expireMillis int64) (string, error) {
+	apiKeyInfo := strings.Split(apiKey, ".")
+	apiKey, apiSecret := apiKeyInfo[0], apiKeyInfo[1]
 
-func getJwtToken(id, secretKey string) (string, error) {
-	claims := &DefPayload{
-		ApiKey:    id,
-		Exp:       time.Now().Unix()*1000 + 1000000,
-		Timestamp: time.Now().Unix() * 1000,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Unix() + 10000,
-		},
-	}
-
-	token := jwt.New(jwt.SigningMethodHS256)
-	token.Claims = claims
+	claims := jwt.MapClaims{}
+	claims["api_key"] = apiKey
+	claims["exp"] = time.Now().Add(time.Duration(expireMillis) * time.Millisecond).UnixMilli()
+	claims["timestamp"] = time.Now().UnixMilli()
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token.Header["sign_type"] = "SIGN"
-	delete(token.Header, "typ")
-	return token.SignedString([]byte(secretKey))
+	token.Header["alg"] = "HS256"
+	tokenString, err := token.SignedString([]byte(apiSecret))
+
+	return tokenString, err
 }
 
 // NewClient creates new OpenAI API client.
-func NewZhiPuClient(id, secrect string) (*Client, error) {
-	authToken, err := getJwtToken(id, secrect)
+func NewZhiPuClient(apiKey string, expireMillis int64) (*Client, error) {
+	authToken, err := getToken(apiKey, expireMillis)
 	if err != nil {
 		return nil, err
 	}
