@@ -56,7 +56,7 @@ func DefaultZhipuConfig(authToken string) ClientConfig {
 	return ClientConfig{
 		authToken: authToken,
 		BaseURL:   zhipuAPIURLv3,
-		APIType:   APITypeOpenAI,
+		APIType:   APITypeZhiPu,
 		OrgID:     "",
 
 		HTTPClient: &http.Client{},
