@@ -8,7 +8,9 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	utils "github.com/sashabaranov/go-openai/internal"
 )
 
@@ -18,6 +20,39 @@ type Client struct {
 
 	requestBuilder    utils.RequestBuilder
 	createFormBuilder func(io.Writer) utils.FormBuilder
+}
+
+type DefPayload struct {
+	ApiKey    string `json:"api_key"`
+	Exp       int64  `json:"exp"`
+	Timestamp int64  `json:"timestamp"`
+}
+
+func getJwtToken(id, secretKey string, payload string) (string, error) {
+	claims := make(jwt.MapClaims)
+	claims["payload"] = payload
+	token := jwt.New(jwt.SigningMethodHS256)
+	token.Claims = claims
+	return token.SignedString([]byte(secretKey))
+}
+
+// NewClient creates new OpenAI API client.
+func NewZhiPuClient(id, secrect, model, methord string) (*Client, error) {
+	now := time.Now().Unix()
+	payload := DefPayload{
+		Timestamp: now * 1000,
+		Exp:       now*1000 + 120*1000,
+		ApiKey:    id,
+	}
+	body, _ := json.Marshal(payload)
+
+	authToken, err := getJwtToken(id, secrect, string(body))
+	if err != nil {
+		return nil, err
+	}
+
+	config := DefaultZhipuConfig(authToken, model, methord)
+	return NewClientWithConfig(config), nil
 }
 
 // NewClient creates new OpenAI API client.
@@ -146,6 +181,8 @@ func (c *Client) setCommonHeaders(req *http.Request) {
 	// Azure API Key authentication
 	if c.config.APIType == APITypeAzure {
 		req.Header.Set(AzureAPIKeyHeader, c.config.authToken)
+	} else if c.config.APIType == APITypeZhiPu {
+		req.Header.Set("Authorization", c.config.authToken)
 	} else {
 		// OpenAI or Azure AD authentication
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.config.authToken))
@@ -202,6 +239,21 @@ func (c *Client) fullURL(suffix string, args ...any) string {
 			baseURL, azureAPIPrefix, azureDeploymentsPrefix,
 			azureDeploymentName, suffix, c.config.APIVersion,
 		)
+	}
+
+	if c.config.APIType == APITypeZhiPu {
+		baseURL := c.config.BaseURL
+		baseURL = strings.TrimRight(baseURL, "/")
+
+		if len(args) > 0 {
+			model, ok := args[0].(string)
+			if ok {
+				return fmt.Sprintf("%s/%s%s",
+					baseURL, model, suffix)
+			}
+		}
+		// return by default
+		return "https://open.bigmodel.cn/api/paas/v3/model-api/chatglm_lite/sse-invoke"
 	}
 
 	// c.config.APIType == APITypeOpenAI || c.config.APIType == ""

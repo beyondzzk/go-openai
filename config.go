@@ -7,6 +7,7 @@ import (
 
 const (
 	openaiAPIURLv1                 = "https://api.openai.com/v1"
+	zhipuAPIURLv3                  = "https://open.bigmodel.cn/api/paas/v3/model-api"
 	defaultEmptyMessagesLimit uint = 300
 
 	azureAPIPrefix         = "openai"
@@ -19,6 +20,7 @@ const (
 	APITypeOpenAI  APIType = "OPEN_AI"
 	APITypeAzure   APIType = "AZURE"
 	APITypeAzureAD APIType = "AZURE_AD"
+	APITypeZhiPu   APIType = "ZHIPU_AI"
 )
 
 const AzureAPIKeyHeader = "api-key"
@@ -41,6 +43,19 @@ func DefaultConfig(authToken string) ClientConfig {
 	return ClientConfig{
 		authToken: authToken,
 		BaseURL:   openaiAPIURLv1,
+		APIType:   APITypeOpenAI,
+		OrgID:     "",
+
+		HTTPClient: &http.Client{},
+
+		EmptyMessagesLimit: defaultEmptyMessagesLimit,
+	}
+}
+
+func DefaultZhipuConfig(authToken, model, methord string) ClientConfig {
+	return ClientConfig{
+		authToken: authToken,
+		BaseURL:   zhipuAPIURLv3,
 		APIType:   APITypeOpenAI,
 		OrgID:     "",
 
