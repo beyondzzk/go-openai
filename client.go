@@ -26,26 +26,29 @@ type DefPayload struct {
 	ApiKey    string `json:"api_key"`
 	Exp       int64  `json:"exp"`
 	Timestamp int64  `json:"timestamp"`
+	jwt.StandardClaims
 }
 
-func getJwtToken(id, secretKey string, payload *DefPayload) (string, error) {
-	claims := make(jwt.MapClaims)
-	claims["payload"] = payload
+func getJwtToken(id, secretKey string) (string, error) {
+	claims := &DefPayload{
+		ApiKey:    id,
+		Exp:       time.Now().Unix()*1000 + 1000000,
+		Timestamp: time.Now().Unix() * 1000,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Unix() + 10000,
+		},
+	}
+
 	token := jwt.New(jwt.SigningMethodHS256)
 	token.Claims = claims
+	token.Header["sign_type"] = "SIGN"
+	delete(token.Header, "typ")
 	return token.SignedString([]byte(secretKey))
 }
 
 // NewClient creates new OpenAI API client.
 func NewZhiPuClient(id, secrect string) (*Client, error) {
-	now := time.Now().Unix()
-	payload := DefPayload{
-		Timestamp: now * 1000,
-		Exp:       now*1000 + 120*1000,
-		ApiKey:    id,
-	}
-
-	authToken, err := getJwtToken(id, secrect, &payload)
+	authToken, err := getJwtToken(id, secrect)
 	if err != nil {
 		return nil, err
 	}
