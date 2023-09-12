@@ -71,9 +71,13 @@ func (stream *streamReader[T]) processZhipuAILines() (T, error) {
 
 		if !gotEventLine && bytes.HasPrefix(noSpaceLine, zhipuHeaderEvent) {
 			response.Event = string(bytes.TrimPrefix(noSpaceLine, zhipuHeaderEvent))
-			gotEventLine = true
 			if readErr == io.EOF {
 				return *tResponse, nil
+			}
+
+			// otherwise, wait for the meta line and eof to end
+			if response.Event != "finish" && response.Event != "interrupted" {
+				gotEventLine = true
 			}
 			continue
 		}
