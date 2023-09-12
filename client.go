@@ -37,7 +37,7 @@ func getJwtToken(id, secretKey string, payload string) (string, error) {
 }
 
 // NewClient creates new OpenAI API client.
-func NewZhiPuClient(id, secrect, model, methord string) (*Client, error) {
+func NewZhiPuClient(id, secrect string) (*Client, error) {
 	now := time.Now().Unix()
 	payload := DefPayload{
 		Timestamp: now * 1000,
@@ -51,7 +51,7 @@ func NewZhiPuClient(id, secrect, model, methord string) (*Client, error) {
 		return nil, err
 	}
 
-	config := DefaultZhipuConfig(authToken, model, methord)
+	config := DefaultZhipuConfig(authToken)
 	return NewClientWithConfig(config), nil
 }
 

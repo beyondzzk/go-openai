@@ -52,7 +52,7 @@ func DefaultConfig(authToken string) ClientConfig {
 	}
 }
 
-func DefaultZhipuConfig(authToken, model, methord string) ClientConfig {
+func DefaultZhipuConfig(authToken string) ClientConfig {
 	return ClientConfig{
 		authToken: authToken,
 		BaseURL:   zhipuAPIURLv3,
