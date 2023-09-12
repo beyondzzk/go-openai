@@ -11,8 +11,12 @@ import (
 )
 
 var (
-	headerData  = []byte("data: ")
-	errorPrefix = []byte(`data: {"error":`)
+	headerData       = []byte("data: ")
+	errorPrefix      = []byte(`data: {"error":`)
+	zhipuHeaderId    = []byte("id: ")
+	zhipuHeaderEvent = []byte("event: ")
+	zhipuHeaderData  = []byte("data: ")
+	zhipuHeaderMeta  = []byte("meta: ")
 )
 
 type streamable interface {
@@ -39,12 +43,81 @@ func (stream *streamReader[T]) Recv() (response T, err error) {
 	return
 }
 
+func (stream *streamReader[T]) processZhipuAILines() (T, error) {
+	var (
+		gotIdLine    bool
+		gotDataLine  bool
+		gotEventLine bool
+		gotMetaLine  bool
+	)
+
+	tResponse := new(T)
+	response, _ := any(tResponse).(*ChatCompletionStreamZhipuResponse)
+	for {
+		if gotIdLine && gotDataLine && gotEventLine {
+			return *tResponse, nil
+		}
+
+		rawLine, readErr := stream.reader.ReadBytes('\n')
+		noSpaceLine := bytes.TrimSpace(rawLine)
+		if !gotIdLine && bytes.HasPrefix(noSpaceLine, zhipuHeaderId) {
+			response.ID = string(bytes.TrimPrefix(noSpaceLine, zhipuHeaderId))
+			gotIdLine = true
+			if readErr == io.EOF {
+				return *tResponse, nil
+			}
+			continue
+		}
+
+		if !gotEventLine && bytes.HasPrefix(noSpaceLine, zhipuHeaderEvent) {
+			response.Event = string(bytes.TrimPrefix(noSpaceLine, zhipuHeaderEvent))
+			gotEventLine = true
+			if readErr == io.EOF {
+				return *tResponse, nil
+			}
+			continue
+		}
+
+		if !gotDataLine && bytes.HasPrefix(noSpaceLine, zhipuHeaderData) {
+			response.Data = string(bytes.TrimPrefix(noSpaceLine, zhipuHeaderData))
+			gotDataLine = true
+			if readErr == io.EOF {
+				return *tResponse, nil
+			}
+			continue
+		}
+
+		if !gotMetaLine && bytes.HasPrefix(noSpaceLine, zhipuHeaderMeta) {
+			if err := stream.unmarshaler.Unmarshal(bytes.TrimPrefix(noSpaceLine, zhipuHeaderMeta), &response.Meta); err != nil {
+
+			}
+			gotMetaLine = true
+			if readErr == io.EOF {
+				return *tResponse, nil
+			}
+			continue
+		}
+
+		if readErr != nil {
+			if readErr == io.EOF {
+				return *tResponse, nil
+			}
+			return *new(T), readErr
+		}
+	}
+}
+
 //nolint:gocognit
 func (stream *streamReader[T]) processLines() (T, error) {
 	var (
 		emptyMessagesCount uint
 		hasErrorPrefix     bool
+		response           T
 	)
+
+	if _, ok := any(response).(ChatCompletionStreamZhipuResponse); ok {
+		return stream.processZhipuAILines()
+	}
 
 	for {
 		rawLine, readErr := stream.reader.ReadBytes('\n')
@@ -82,7 +155,6 @@ func (stream *streamReader[T]) processLines() (T, error) {
 			return *new(T), io.EOF
 		}
 
-		var response T
 		unmarshalErr := stream.unmarshaler.Unmarshal(noPrefixLine, &response)
 		if unmarshalErr != nil {
 			return *new(T), unmarshalErr
