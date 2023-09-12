@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
+	utils "github.com/beyondzzk/go-openai/internal"
 	"github.com/dgrijalva/jwt-go"
-	utils "github.com/sashabaranov/go-openai/internal"
 )
 
 // Client is OpenAI GPT-3 API client.
