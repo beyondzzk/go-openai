@@ -29,12 +29,8 @@ type ChatCompletionZhipuResponse struct {
 // CreateChatCompletion — API call to Create a completion for the chat message.
 func (c *Client) CreateChatCompletionZhipu(
 	ctx context.Context,
-	request ChatCompletionRequest,
+	request ChatCompletionZhihuRequest,
 ) (response ChatCompletionZhipuResponse, err error) {
-	if request.Stream {
-		err = ErrChatCompletionStreamNotSupported
-		return
-	}
 	urlSuffix := "/invoke"
 
 	req, err := c.newRequest(ctx, http.MethodPost, c.fullURL(urlSuffix, request.Model), withBody(request))
