@@ -23,14 +23,11 @@ type ChatCompletionStreamZhipu struct {
 }
 
 // ChatCompletionRequest represents a request structure for chat completion API.
-type ChatCompletionZhihuRequest struct {
+type ChatCompletionZhipuRequest struct {
 	Model       string                  `json:"model"`
 	Messages    []ChatCompletionMessage `json:"prompt"`
-	MaxTokens   int                     `json:"max_tokens,omitempty"`
 	Temperature float32                 `json:"temperature,omitempty"`
 	TopP        float32                 `json:"top_p,omitempty"`
-	N           int                     `json:"n,omitempty"`
-	LogitBias   map[string]int          `json:"logit_bias,omitempty"`
 }
 
 // CreateChatCompletionStream — API call to create a chat completion w/ streaming
@@ -39,7 +36,7 @@ type ChatCompletionZhihuRequest struct {
 // stream terminated by a data: [DONE] message.
 func (c *Client) CreateChatCompletionStreamZhipu(
 	ctx context.Context,
-	request ChatCompletionZhihuRequest,
+	request ChatCompletionZhipuRequest,
 ) (stream *ChatCompletionStreamZhipu, err error) {
 	urlSuffix := "/sse-invoke"
 
