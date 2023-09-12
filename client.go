@@ -28,7 +28,7 @@ type DefPayload struct {
 	Timestamp int64  `json:"timestamp"`
 }
 
-func getJwtToken(id, secretKey string, payload string) (string, error) {
+func getJwtToken(id, secretKey string, payload *DefPayload) (string, error) {
 	claims := make(jwt.MapClaims)
 	claims["payload"] = payload
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -44,9 +44,8 @@ func NewZhiPuClient(id, secrect string) (*Client, error) {
 		Exp:       now*1000 + 120*1000,
 		ApiKey:    id,
 	}
-	body, _ := json.Marshal(payload)
 
-	authToken, err := getJwtToken(id, secrect, string(body))
+	authToken, err := getJwtToken(id, secrect, &payload)
 	if err != nil {
 		return nil, err
 	}
