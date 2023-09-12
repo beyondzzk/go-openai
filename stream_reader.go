@@ -13,10 +13,10 @@ import (
 var (
 	headerData       = []byte("data: ")
 	errorPrefix      = []byte(`data: {"error":`)
-	zhipuHeaderId    = []byte("id: ")
-	zhipuHeaderEvent = []byte("event: ")
-	zhipuHeaderData  = []byte("data: ")
-	zhipuHeaderMeta  = []byte("meta: ")
+	zhipuHeaderId    = []byte("id:")
+	zhipuHeaderEvent = []byte("event:")
+	zhipuHeaderData  = []byte("data:")
+	zhipuHeaderMeta  = []byte("meta:")
 )
 
 type streamable interface {
