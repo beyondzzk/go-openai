@@ -64,7 +64,7 @@ func (stream *streamReader[T]) processZhipuAILines() (T, error) {
 			response.ID = string(bytes.TrimPrefix(noSpaceLine, zhipuHeaderId))
 			gotIdLine = true
 			if readErr == io.EOF {
-				return *tResponse, nil
+				return *tResponse, io.EOF
 			}
 			continue
 		}
@@ -72,7 +72,7 @@ func (stream *streamReader[T]) processZhipuAILines() (T, error) {
 		if !gotEventLine && bytes.HasPrefix(noSpaceLine, zhipuHeaderEvent) {
 			response.Event = string(bytes.TrimPrefix(noSpaceLine, zhipuHeaderEvent))
 			if readErr == io.EOF {
-				return *tResponse, nil
+				return *tResponse, io.EOF
 			}
 
 			// otherwise, wait for the meta line and eof to end
@@ -86,7 +86,7 @@ func (stream *streamReader[T]) processZhipuAILines() (T, error) {
 			response.Data = string(bytes.TrimPrefix(noSpaceLine, zhipuHeaderData))
 			gotDataLine = true
 			if readErr == io.EOF {
-				return *tResponse, nil
+				return *tResponse, io.EOF
 			}
 			continue
 		}
@@ -97,14 +97,14 @@ func (stream *streamReader[T]) processZhipuAILines() (T, error) {
 			}
 			gotMetaLine = true
 			if readErr == io.EOF {
-				return *tResponse, nil
+				return *tResponse, io.EOF
 			}
 			continue
 		}
 
 		if readErr != nil {
 			if readErr == io.EOF {
-				return *tResponse, nil
+				return *tResponse, readErr
 			}
 			return *new(T), readErr
 		}
