@@ -29,7 +29,7 @@ type ChatCompletionZhipuResponse struct {
 // CreateChatCompletion — API call to Create a completion for the chat message.
 func (c *Client) CreateChatCompletionZhipu(
 	ctx context.Context,
-	request ChatCompletionZhihuRequest,
+	request ChatCompletionRequest,
 ) (response ChatCompletionZhipuResponse, err error) {
 	urlSuffix := "/invoke"
 
