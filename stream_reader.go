@@ -85,7 +85,7 @@ func (stream *streamReader[T]) processZhipuAILines() (T, error) {
 		if !gotDataLine && bytes.HasPrefix(noSpaceLine, zhipuHeaderData) {
 			// because data always heading with two spaces, so we need to trim one
 			data := bytes.TrimPrefix(noSpaceLine, zhipuHeaderData)
-			if data[0] == byte(' ') && data[1] == byte(' ') {
+			if len(data) >= 2 && data[0] == byte(' ') && data[1] == byte(' ') {
 				response.Data = string(data[1:])
 			} else {
 				response.Data = string(data)
