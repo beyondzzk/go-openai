@@ -13,7 +13,7 @@ type ChatCompletionZhipuChoice struct {
 type ChatCompletionData struct {
 	Choice     []ChatCompletionZhipuChoice `json:"choices"`
 	RequestId  string                      `json:"request_id,omitempty"`
-	TaskId     int64                       `json:"task_id,omitempty"`
+	TaskId     string                      `json:"task_id,omitempty"`
 	TaskStatus string                      `json:"task_status,omitempty"`
 	Usage      Usage                       `json:"usage"`
 }
