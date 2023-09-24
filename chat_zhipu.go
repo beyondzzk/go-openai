@@ -20,9 +20,9 @@ type ChatCompletionData struct {
 
 // ChatCompletionResponse represents a response structure for chat completion API.
 type ChatCompletionZhipuResponse struct {
-	Code    string             `json:"code,omitempty"`
+	Code    int                `json:"code,omitempty"`
 	Message string             `json:"msg,omitempty"`
-	Success int64              `json:"success,omitempty"`
+	Success bool               `json:"success,omitempty"`
 	Data    ChatCompletionData `json:"data,omitempty"`
 }
 
