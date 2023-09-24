@@ -11,19 +11,19 @@ type ChatCompletionZhipuChoice struct {
 }
 
 type ChatCompletionData struct {
-	Choice     []string `json:"choices"`
-	RequestId  string   `json:"request_id,omitempty"`
-	TaskId     string   `json:"task_id,omitempty"`
-	TaskStatus string   `json:"task_status,omitempty"`
-	Usage      Usage    `json:"usage"`
+	Choice     []ChatCompletionZhipuChoice `json:"choices"`
+	RequestId  string                      `json:"request_id,omitempty"`
+	TaskId     string                      `json:"task_id,omitempty"`
+	TaskStatus string                      `json:"task_status,omitempty"`
+	Usage      Usage                       `json:"usage"`
 }
 
 // ChatCompletionResponse represents a response structure for chat completion API.
 type ChatCompletionZhipuResponse struct {
-	Code    int    `json:"code,omitempty"`
-	Message string `json:"msg,omitempty"`
-	Success bool   `json:"success,omitempty"`
-	Data    string `json:"data,omitempty"`
+	Code    int                `json:"code,omitempty"`
+	Message string             `json:"msg,omitempty"`
+	Success bool               `json:"success,omitempty"`
+	Data    ChatCompletionData `json:"data,omitempty"`
 }
 
 // CreateChatCompletion — API call to Create a completion for the chat message.
