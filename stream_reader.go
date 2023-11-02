@@ -61,7 +61,7 @@ func (stream *streamReader[T]) processZhipuAILines() (T, error) {
 
 		rawLine, readErr := stream.reader.ReadBytes('\n')
 		noSpaceLine := bytes.TrimSpace(rawLine)
-		logx.Debug("streamReader.processZhipuAILines-->", string(rawLine), readErr)
+		logx.Debugf("streamReader.processZhipuAILines-->raw:%v nospacelind:%v err:%v", string(rawLine), noSpaceLine, readErr)
 
 		if !gotIdLine && bytes.HasPrefix(noSpaceLine, zhipuHeaderId) {
 			response.ID = string(bytes.TrimPrefix(noSpaceLine, zhipuHeaderId))
@@ -85,13 +85,13 @@ func (stream *streamReader[T]) processZhipuAILines() (T, error) {
 			continue
 		}
 
-		if !gotDataLine && bytes.HasPrefix(noSpaceLine, zhipuHeaderData) {
+		if bytes.HasPrefix(noSpaceLine, zhipuHeaderData) {
 			// because data always heading with two spaces, so we need to trim one
 			data := bytes.TrimPrefix(noSpaceLine, zhipuHeaderData)
 			if len(data) >= 2 && data[0] == byte(' ') && data[1] == byte(' ') {
-				response.Data = string(data[1:])
+				response.Data = string(append([]byte(response.Data), data[1:]...))
 			} else {
-				response.Data = string(data)
+				response.Data = string(append([]byte(response.Data), data...))
 			}
 			gotDataLine = true
 			if readErr == io.EOF {
