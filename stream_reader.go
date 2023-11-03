@@ -95,7 +95,7 @@ func (stream *streamReader[T]) processZhipuAILines() (T, error) {
 					continue
 				}
 
-				data = rawLine[:l-1]
+				data = bytes.TrimPrefix(rawLine[:l-1], zhipuHeaderData)
 			}
 
 			if len(data) >= 2 && data[0] == byte(' ') && data[1] == byte(' ') {
