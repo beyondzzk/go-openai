@@ -91,7 +91,7 @@ func (stream *streamReader[T]) processZhipuAILines() (T, error) {
 			if len(data) == 0 {
 				l := len(rawLine)
 				data = bytes.TrimPrefix(rawLine[:l-1], zhipuHeaderData)
-				if l == 5 /*len(zhipuheaderdata) + len(/n)*/ && (rawLine[l-1] == '\n' || rawLine[l-1] == '\t' || rawLine[l-1] == '\v') {
+				if l == 6 /*len(zhipuheaderdata) + len(/n)*/ && (rawLine[l-1] == '\n' || rawLine[l-1] == '\t' || rawLine[l-1] == '\v') {
 					response.Data = string(append([]byte(response.Data), data[l-1]))
 					continue
 				}
