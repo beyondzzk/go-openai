@@ -7,7 +7,7 @@ import (
 
 const (
 	openaiAPIURLv1                 = "https://api.openai.com/v1"
-	zhipuAPIURLv3                  = "https://open.bigmodel.cn/api/paas/v3/model-api"
+	zhipuAPIURLv3                  = "https://open.bigmodel.cn/api/paas/v3/model-api/chatglm_turbo"
 	defaultEmptyMessagesLimit uint = 300
 
 	azureAPIPrefix         = "openai"

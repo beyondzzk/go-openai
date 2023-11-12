@@ -247,7 +247,7 @@ func (c *Client) fullURL(suffix string, args ...any) string {
 			}
 		}
 		// return by default
-		return "https://open.bigmodel.cn/api/paas/v3/model-api/chatglm_lite/sse-invoke"
+		return "https://open.bigmodel.cn/api/paas/v3/model-api/chatglm_turbo/sse-invoke"
 	}
 
 	// c.config.APIType == APITypeOpenAI || c.config.APIType == ""
