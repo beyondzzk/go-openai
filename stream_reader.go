@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	utils "github.com/beyondzzk/go-openai/internal"
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 var (
@@ -85,7 +84,6 @@ func (stream *streamReader[T]) processZhipuAILines() (T, error) {
 		}
 
 		if bytes.HasPrefix(noSpaceLine, zhipuHeaderData) {
-			logx.Debugf("streamReader.processZhipuAILines-->raw:%v nospacelind:%v err:%v", string(rawLine), string(noSpaceLine), readErr)
 			// because data always heading with two spaces, so we need to trim one
 			data := bytes.TrimPrefix(noSpaceLine, zhipuHeaderData)
 			if len(data) == 0 {
