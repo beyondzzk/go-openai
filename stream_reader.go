@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	utils "github.com/beyondzzk/go-openai/internal"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 var (
@@ -61,6 +62,7 @@ func (stream *streamReader[T]) processZhipuAILines() (T, error) {
 		rawLine, readErr := stream.reader.ReadBytes('\n')
 		noSpaceLine := bytes.TrimSpace(rawLine)
 
+		logx.Debugf("go_openai raw:%v  trim:%v", string(rawLine), string(noSpaceLine))
 		if !gotIdLine && bytes.HasPrefix(noSpaceLine, zhipuHeaderId) {
 			response.ID = string(bytes.TrimPrefix(noSpaceLine, zhipuHeaderId))
 			gotIdLine = true
